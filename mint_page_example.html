@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mint an NFT</title>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<div>
+<p>Wallet address: <span id="wallet-address"></span></p>
+<p>Total supply: <span id="total-supply"></span></p>
+<button id="mint">Mint an NFT</button>
+</div>
+<script type="text/javascript">
+// 1. Connect metamask to our site. Get the user's address
+var account = null;
+var contract = null;
+const ABI= [
+        {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_mintAmount",
+                    "type": "uint256"
+                }
+            ],
+            "name": "mint",
+            "outputs": [],
+            "stateMutability": "payable",
+            "type": "function"
+        },
+        {
+            "inputs": [],
+            "name": "totalSupply",
+            "outputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "",
+                    "type": "uint256"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        } 
+    ];
+const ADDRESS = "" ;  // адрес СК, например 0x58f1cedc8a83f7c3b56d8f89c713e67d255ad71a
+(async () => {
+if (window.ethereum) {
+
+    await window.ethereum.send('eth_requestAccounts');
+    window.web3 = new Web3(window.ethereum) ;
+
+    var accounts = await web3.eth.getAccounts();
+    account = accounts [0];
+    document.getElementById('wallet-address').textContent = account;
+    
+    contract = new web3.eth.Contract(ABI, ADDRESS);
+
+    var totalSupply = await contract.methods.totalSupply().call();
+    document.getElementById('total-supply').textContent = totalSupply;
+        
+    document.getElementById('mint').onclick=()=>{
+        contract.methods.mint(1).send({ from: account, value: "500000000000000000" });  // <- value - стоимость минта
+    }
+
+    }
+    })();
+
+    async function test() {
+        var totalSuppl = await contract.methods.totalSupply().call();
+        document.getElementById('total-supply').textContent = totalSuppl;
+        
+        console.log(totalSuppl);
+    }
+
+    setInterval(test, 5000);
+</script>
+</body>
+</html>
